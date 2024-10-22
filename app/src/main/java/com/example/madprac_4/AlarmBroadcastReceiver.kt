@@ -3,19 +3,30 @@ package com.example.madprac_4
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.widget.Toast
+import android.media.MediaPlayer
+import android.provider.ContactsContract.CommonDataKinds.Note
 
 class AlarmBroadcastReceiver : BroadcastReceiver() {
-
-    override fun onReceive(context: Context, intent: Intent) {
-        val action = intent.getStringExtra("Service1")
-        if (action == "Start") {
-            Toast.makeText(context, "Alarm Triggered!", Toast.LENGTH_SHORT).show()
-
-            // Optionally, start MyService if you want to play a sound or do something when the alarm triggers
-            val serviceIntent = Intent(context, MyService::class.java)
-            serviceIntent.putExtra("Service1", "PlayPause")
-            context.startService(serviceIntent)
+    var mp: MediaPlayer? = null
+    override fun onReceive(context: Context?, intent: Intent?) {
+        var note:Note? = null
+        if(intent!=null){
+            mp = MediaPlayer.create(context,R.raw.alarm)
+            mp?.start()
+        }
+        if(intent != null && context!=null){
+            val str1 = intent.getStringExtra("Service1")
+            if(str1 == null){}
+            else if(str1 == "Start" || str1 == "Stop"){
+                val intentService = Intent(context, AlarmService::class.java)
+                intentService.putExtra("Service1", intent.getStringExtra("Service1"))
+                if(str1 == "Start"){
+                    context.startService(intentService)
+                }
+                else if(str1 == "Stop"){
+                    context.stopService(intentService)
+                }
+            }
         }
     }
 }
